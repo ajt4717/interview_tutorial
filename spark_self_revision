@@ -1,0 +1,46 @@
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+
+val conf = new SparkConf().setMaster().setAppName()
+val sc = new SparkContext(conf)
+val spark = SparkSession.builder.appName("appabc").master("yarn").config.......getOrCreate
+
+
+val dataseq = Seq(("col1","col2",col3),("col1","col2",col3))
+val rdd = sc.parallelize(dataseq)
+val rowRDD = rdd.map(x => Row(x._1,x._2,x._3))
+
+import org.apache.spark.sql.{Row}
+import org.apache.spark.sql.types.{StructType,_}
+
+val MYschema= StructType(Array(
+structField(col1,int),
+structField(),
+structField()
+))
+
+val df = spark.createDataFrame(rowRDD,MYschema)
+
+val col = Seq(colname1,colname2)
+val df = spark.CreateDataFrame(rdd).toDF(col:_*)
+
+=============================================================
+
+val df = spark.read.option("delimiter",",").option("header",false).option("inferschema","true").csv("path").toDF(colu : _*)
+val df = spark.read.format("csv").option("inferschema","true").option("numPartitions","10")..load("path")
+val df = spark.read.format("csv").schema(MYschema)...load("path")
+val df = spark.read.format("csv").schema("""col1 INT,col2 STRING,col3 FLOAT""")...load("path")
+
+val df = spark.read.option("inferschema","true").schema(MYschema).option("mode","FAILFAST").option("path","...").load()
+
+MODES : PERMISSIVE ( converts the row values to null), DROPMALFORMED, FAILFAST
+
+df.write.format("parquet").option("mode","OVERWRITE").option("path","").coalesce(3)
+
+MODES : APPEND, OVERWRITE, ERRORIFEXISTS (default) , IGNORE
+
+
+READ DATA FROM ORACLE
+val df = spark.read.format("jdbc").option("url","<db_path>").option("driver","").option("dbtable","schema.tablename").
+option("user","").option("password","").option("query","").load()
+
