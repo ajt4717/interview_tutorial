@@ -1,0 +1,46 @@
+SPARK CONFIGURATIONS AND (RE)PARTITIONS
+---------------------------------------
+
+spark-shell --master "local" --name "APP1111"    //opens sparkcontext as sc
+import org.apache.spark.SparkConf
+import org.apache.spark.SparkContext
+val conf = new SparkConf().setMaster("local[4]").setAppName("APP22222")
+val sc1 = new SparkContext(conf)    //creates sparkcontext as sc1 ( sc will stop and sc1 only will run)
+
+//get spark confg sc=spark context  spark=spark session
+sc.getConf.getAll.foreach(println)
+spark.conf.getAll.foreach(println)
+
+spark default partions = number of cpu cores ELSE cores set up in master()
+val rdd = sc.parallelize(Seq(1,10))   // default cores
+rdd.partitions.size
+rdd.getNumPartitions
+rdd.partitions.length
+
+val rdd = sc.parallelize(Seq(1,10),5)   //no. of cores set to 5
+rdd.repartition(3)   // change partitions inc or dec
+
+val rdd1 = rdd.coalesce(3)   // only dec partitions
+rdd1.partitions.size
+
+also df.repartition or coalesce possible
+
+----------------------------------------------
+sc.stop   // stop the already running spark context before creating a new spark context
+
+import org.apache.spark.sql.SparkSession
+val spark:SparkSession = SparkSession.builder().master("local[5]").appName("APP3333").getOrCreate()
+val sc = spark.sparkContext
+sc.getConf.getAll.foreach(println)
+
+
+-----------------------------------------------------
+
+SHUFFLING
+
+GROUP,GROUPBYKEY,REDUCEBYKEY,REPARTITION does shuffling. 
+DataFrame increases the partition number to 200 automatically when Spark operation performs data shuffling. The default shuffle partition number comes from Spark SQL configuration spark.sql.shuffle.partitions which is by default set to 200.
+
+You can change this default shuffle partition value using  conf method of the SparkSession object.
+spark.conf.set("spark.sql.shuffle.partitions",100)
+
